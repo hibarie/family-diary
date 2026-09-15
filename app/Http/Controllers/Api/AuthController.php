@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Family;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
@@ -23,9 +25,20 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        do {
+            $inviteCode = Str::upper(Str::random(8));
+        } while (Family::where('invite_code', $inviteCode)->exists());
+
+        $family = Family::create([
+            'name' => $validated['name'].'の家族',
+            'invite_code' => $inviteCode,
+        ]);
+
+        $family->users()->attach($user->id, ['role' => 'owner']);
+
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token], 201);
+        return response()->json(['user' => $user, 'family' => $family, 'token' => $token], 201);
     }
 
     public function login(Request $request)

@@ -15,6 +15,7 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/families', FamilyController::class);
+    Route::post('/families/join', [FamilyController::class, 'join']);
     Route::get('/diary-entries', [DiaryEntryController::class, 'index']);
     Route::post('/diary-entries', [DiaryEntryController::class, 'store']);
     Route::put('/diary-entries/{diaryEntry}', [DiaryEntryController::class, 'update']);
