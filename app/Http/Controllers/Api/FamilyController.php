@@ -33,6 +33,16 @@ class FamilyController extends Controller
 
         $family->users()->attach($user->id, ['role' => 'member']);
 
+        // 参加した家族以外に、自分しかいない家族(登録時に自動で作られたもの)があれば抜けておく。
+        // このアプリは1人が1つの家族にだけ属する前提のため。
+        $otherFamilies = $user->families()->where('families.id', '!=', $family->id)->get();
+
+        foreach ($otherFamilies as $other) {
+            if ($other->users()->count() === 1) {
+                $user->families()->detach($other->id);
+            }
+        }
+
         return response()->json($family->load('users'));
     }
 }

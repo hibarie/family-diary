@@ -17,7 +17,18 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
+            'invite_code' => 'nullable|string',
         ]);
+
+        $family = null;
+
+        if (! empty($validated['invite_code'])) {
+            $family = Family::where('invite_code', $validated['invite_code'])->first();
+
+            if (! $family) {
+                return response()->json(['message' => '招待コードが見つかりません'], 404);
+            }
+        }
 
         $user = User::create([
             'name' => $validated['name'],
@@ -25,16 +36,20 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        do {
-            $inviteCode = Str::upper(Str::random(8));
-        } while (Family::where('invite_code', $inviteCode)->exists());
+        if ($family) {
+            $family->users()->attach($user->id, ['role' => 'member']);
+        } else {
+            do {
+                $inviteCode = Str::upper(Str::random(8));
+            } while (Family::where('invite_code', $inviteCode)->exists());
 
-        $family = Family::create([
-            'name' => $validated['name'].'の家族',
-            'invite_code' => $inviteCode,
-        ]);
+            $family = Family::create([
+                'name' => $validated['name'].'の家族',
+                'invite_code' => $inviteCode,
+            ]);
 
-        $family->users()->attach($user->id, ['role' => 'owner']);
+            $family->users()->attach($user->id, ['role' => 'owner']);
+        }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
