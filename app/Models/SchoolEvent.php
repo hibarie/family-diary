@@ -8,6 +8,8 @@ class SchoolEvent extends Model
 {
     protected $fillable = ['family_id', 'child_id', 'title', 'event_type', 'event_date', 'memo'];
 
+    protected $casts = ['event_date' => 'date'];
+
     public function family()
     {
         return $this->belongsTo(Family::class);
@@ -16,5 +18,10 @@ class SchoolEvent extends Model
     public function child()
     {
         return $this->belongsTo(Child::class);
+    }
+
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'mediable');
     }
 }
