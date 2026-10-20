@@ -33,4 +33,13 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Family::class)->withPivot('role');
     }
+
+    /**
+     * このアプリでは1人のユーザーは常に1つの家族に属する前提のため、
+     * 現在の家族をこのヘルパーで取得する。まだどの家族にも属していない場合は null。
+     */
+    public function currentFamily(): ?Family
+    {
+        return $this->families()->first();
+    }
 }

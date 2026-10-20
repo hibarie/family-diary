@@ -63,7 +63,8 @@ class CalendarController extends Controller
         $user = $request->user();
         $familyId = $user->families()->first()->id;
 
-        $diaryEntries = DiaryEntry::where('family_id', $familyId)
+        $diaryEntries = DiaryEntry::with('media')
+            ->where('family_id', $familyId)
             ->whereDate('entry_date', $date)
             ->orderBy('created_at')
             ->get();

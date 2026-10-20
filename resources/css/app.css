@@ -7,3 +7,73 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+
+/* ---------- Family Diary: パステル絵本風 ---------- */
+body {
+    background: #fff6e8;
+    color: #5b4636;
+    font-family: 'Zen Maru Gothic', ui-rounded, system-ui, sans-serif;
+}
+
+header.fd-header {
+    background: transparent;
+    border-bottom: 0;
+}
+
+.fd-card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 0 #ffe3bf;
+}
+
+.fd-card h2 {
+    font-weight: 700;
+    color: #5b4636;
+}
+
+input,
+select,
+textarea {
+    border-radius: 14px !important;
+    border-color: #f0dfc8 !important;
+}
+
+button[type='submit'] {
+    border-radius: 999px !important;
+}
+
+.fd-pill {
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.fd-pill-orange { color: #f59a3c; background: #fff1dc; }
+.fd-pill-blue { color: #3c9bd6; background: #e5f3fc; }
+
+.fd-person {
+    border-radius: 20px;
+    background: #fff1dc;
+    padding: 10px 12px;
+}
+
+.fd-person--child { background: #e6f7ec; }
+
+.fd-event {
+    border-radius: 18px;
+    background: #e5f3fc;
+    padding: 10px 14px;
+}
+
+.fd-diary {
+    border-radius: 18px;
+    background: #fff1dc;
+    padding: 10px 14px;
+}
+
+.fd-day {
+    border-radius: 14px;
+}

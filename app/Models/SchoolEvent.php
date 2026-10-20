@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SchoolEvent extends Model
 {
-    protected $fillable = ['family_id', 'child_id', 'title', 'event_type', 'event_date', 'memo'];
+    protected $fillable = ['family_id', 'child_id', 'family_member_id', 'title', 'event_type', 'event_date', 'memo'];
 
     protected $casts = ['event_date' => 'date'];
 
@@ -18,6 +18,11 @@ class SchoolEvent extends Model
     public function child()
     {
         return $this->belongsTo(Child::class);
+    }
+
+    public function familyMember()
+    {
+        return $this->belongsTo(FamilyMember::class);
     }
 
     public function media()

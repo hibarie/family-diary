@@ -13,6 +13,11 @@ class Family extends Model
         return $this->hasMany(Child::class);
     }
 
+    public function members()
+    {
+        return $this->hasMany(FamilyMember::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('role');

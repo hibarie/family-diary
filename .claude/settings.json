@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.backup)",
+      "Read(.env.production)",
+      "Read(.env.local)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa)",
+      "Read(**/credentials.json)"
+    ],
+    "blockReadsOutsideWorkingDirectories": true
+  }
+}

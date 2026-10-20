@@ -10,10 +10,11 @@ class DiaryEntryController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        $familyId = $user->families()->first()->id;
+        $family = $request->user()->currentFamily();
+        abort_if(! $family, 422, 'まだ家族に参加していません');
 
-        return DiaryEntry::where('family_id', $familyId)
+        return DiaryEntry::where('family_id', $family->id)
+            ->with('media', 'user')
             ->orderByDesc('entry_date')
             ->get();
     }
@@ -27,11 +28,12 @@ class DiaryEntryController extends Controller
         ]);
 
         $user = $request->user();
-        $familyId = $user->families()->first()->id;
+        $family = $user->currentFamily();
+        abort_if(! $family, 422, 'まだ家族に参加していません');
 
         $entry = DiaryEntry::create([
             ...$validated,
-            'family_id' => $familyId,
+            'family_id' => $family->id,
             'user_id' => $user->id,
         ]);
 
@@ -40,10 +42,10 @@ class DiaryEntryController extends Controller
 
     public function update(Request $request, DiaryEntry $diaryEntry)
     {
-        $user = $request->user();
-        $familyId = $user->families()->first()->id;
+        $family = $request->user()->currentFamily();
+        abort_if(! $family, 422, 'まだ家族に参加していません');
 
-        if ($diaryEntry->family_id !== $familyId) {
+        if ($diaryEntry->family_id !== $family->id) {
             return response()->json(['message' => 'この日記を編集する権限がありません'], 403);
         }
 
@@ -60,10 +62,10 @@ class DiaryEntryController extends Controller
 
     public function destroy(Request $request, DiaryEntry $diaryEntry)
     {
-        $user = $request->user();
-        $familyId = $user->families()->first()->id;
+        $family = $request->user()->currentFamily();
+        abort_if(! $family, 422, 'まだ家族に参加していません');
 
-        if ($diaryEntry->family_id !== $familyId) {
+        if ($diaryEntry->family_id !== $family->id) {
             return response()->json(['message' => 'この日記を削除する権限がありません'], 403);
         }
 
