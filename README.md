@@ -1,58 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Family Diary 🐾
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+家族みんなで使える、育児・家族の予定管理アプリです。
+子どもがいる家庭向けに、幼稚園の予定、パパ・ママの仕事や休日、日々の日記と写真を、1つのカレンダーにまとめて見られます。
 
-## About Laravel
+Laravel の API と、Vite + Tailwind CSS の画面(ブラウザ向けの1ページアプリ)で作っています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 主な機能
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **家族で共有:** 家族ごとの招待コードで、同じ記録を一緒に見られます。
+- **家族の情報:** パパ・ママ・こども(ほか祖父母なども)を、写真と生年月日つきで登録できます。「○歳○ヶ月(生まれて○日目)」を自動で表示します。
+- **カレンダー:** 月ごとの表示で、記録のある日に印が付きます。日付を選ぶと、その日の予定と日記が見られます。
+- **予定:** 家族のだれの予定かをタブで選んで登録できます。編集と削除もできます。
+- **日記と写真:** その日の日記を書いて、写真を付けられます。あとから文章の編集、写真の削除もできます。
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 使っている技術
 
-## Learning Laravel
+| 分野 | 技術 |
+| --- | --- |
+| サーバー | PHP 8.5 / Laravel 13 |
+| 認証 | Laravel Sanctum(トークン認証) |
+| データベース | MySQL 8.4 |
+| 画面 | Vite / Tailwind CSS 4 / JavaScript(フレームワークなし) |
+| 開発環境 | Docker(Laravel Sail) |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 設計のポイント
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **家族ごとにデータを分ける:** 予定・日記・写真・家族の情報はすべて `family_id` を持ち、どのAPIでも「ログイン中のユーザーの家族のデータか」を確認します。別の家族のデータは、読むことも変えることもできません(403を返します)。
+- **API と画面を分ける:** 画面は `/api` だけを呼び出します。データの出し入れはすべて API が担当します。
+- **写真の扱い:** 写真は `public` ディスクに保存し、日記・予定どちらにも付けられるよう、ポリモーフィックなリレーション(`media` テーブル)にしています。
+- **変更の履歴を migration に残す:** 予定の種類を増やす、入力を任意にするなどの変更も、すべて migration として記録しています。
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## API(主なもの)
 
-## Agentic Development
+認証が必要なものは、`Authorization: Bearer <トークン>` を付けて呼びます。
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+| メソッド | パス | 内容 |
+| --- | --- | --- |
+| POST | `/api/register` | 新規登録(招待コードで既存の家族に参加も可能) |
+| POST | `/api/login` | ログイン(トークンを返す) |
+| GET | `/api/families` | 自分の家族の情報と招待コード |
+| GET / POST / PUT / DELETE | `/api/children` | 子どもの管理 |
+| POST | `/api/children/{id}/photo` | 子どもの写真の変更 |
+| GET / POST / PUT / DELETE | `/api/family-members` | パパ・ママなどの管理 |
+| POST | `/api/family-members/{id}/photo` | 写真の変更 |
+| POST | `/api/children/{id}/school-events` | 子どもの予定の登録 |
+| POST | `/api/family-members/{id}/school-events` | パパ・ママの予定の登録 |
+| PUT / DELETE | `/api/school-events/{id}` | 予定の編集・削除 |
+| POST / PUT / DELETE | `/api/diary-entries` | 日記の登録・編集・削除 |
+| POST | `/api/diary-entries/{id}/media` | 日記への写真の追加 |
+| DELETE | `/api/media/{id}` | 写真の削除 |
+| GET | `/api/calendar/{year}/{month}` | 月ごとの記録の件数 |
+| GET | `/api/calendar/day/{date}` | 1日分の予定と日記 |
+
+## 動かし方(ローカル)
+
+作者の環境(Mac + Docker Desktop)で動作確認済みです。PHP、Composer、Docker Desktop が入っている環境で、次の順に実行します。
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+# 1. 取得して、設定ファイルを用意する
+git clone https://github.com/hibarie/family-diary.git
+cd family-diary
+cp .env.example .env
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+`.env` を開き、データベースの設定を MySQL 用に書き換えます。
 
-## Contributing
+```
+APP_PORT=8000
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 2. 起動して、準備する
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan storage:link
 
-## Code of Conduct
+# 3. 画面のファイルを動かす
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+ブラウザで http://localhost:8000 を開き、「はじめて使う」から登録すると使えます。
 
-## Security Vulnerabilities
+## 今後の予定
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- インターネット上への公開(どこからでもスマホで使えるようにする)
+- 予定を、TimeTree などのカレンダーアプリに書き出す(iCalendar 形式)
+- 日記と予定の、全期間の検索
