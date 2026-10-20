@@ -75,7 +75,6 @@ composer install
 `.env` を開き、データベースの設定を MySQL 用に書き換えます。
 
 ```
-APP_PORT=8000
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
@@ -96,7 +95,7 @@ DB_PASSWORD=password
 ./vendor/bin/sail npm run dev
 ```
 
-ブラウザで http://localhost:8000 を開き、「はじめて使う」から登録すると使えます。
+ブラウザで http://localhost を開き、「はじめて使う」から登録すると使えます。
 
 ## 今後の予定
 
