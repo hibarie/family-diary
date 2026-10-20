@@ -5,6 +5,14 @@
 
 Laravel の API と、Vite + Tailwind CSS の画面(ブラウザ向けの1ページアプリ)で作っています。
 
+## 画面
+
+![家族の情報とカレンダー](docs/screenshot-home.png)
+
+![1日の予定と日記](docs/screenshot-day.png)
+
+(個人情報はぼかしています)
+
 ## 主な機能
 
 - **家族で共有:** 家族ごとの招待コードで、同じ記録を一緒に見られます。
