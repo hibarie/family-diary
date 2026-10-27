@@ -19,8 +19,20 @@ if [ -z "$APP_URL" ] && [ -n "$RENDER_EXTERNAL_URL" ]; then
 fi
 
 # Aiven の MySQL はSSL接続が必須。CA証明書の中身を環境変数 DB_CA_CERT で受け取り、ファイルに書き出す
+# Render の入力欄に貼ると改行が消えて1行になることがあるため、
+# 中身（base64部分）だけを取り出して、正しいPEM形式（64文字ごとに改行）に組み直す
 if [ -n "$DB_CA_CERT" ]; then
-  printf '%s\n' "$DB_CA_CERT" > /tmp/db-ca.pem
+  CERT_BODY=$(printf '%s' "$DB_CA_CERT" \
+    | sed -e 's/\\n/ /g' \
+          -e 's/-----BEGIN CERTIFICATE-----//g' \
+          -e 's/-----END CERTIFICATE-----//g' \
+    | tr -d ' \r\n\t')
+  {
+    echo "-----BEGIN CERTIFICATE-----"
+    printf '%s' "$CERT_BODY" | fold -w 64
+    echo
+    echo "-----END CERTIFICATE-----"
+  } > /tmp/db-ca.pem
   export MYSQL_ATTR_SSL_CA=/tmp/db-ca.pem
 fi
 
